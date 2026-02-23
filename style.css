@@ -1,0 +1,109 @@
+body {
+    font-family: Arial;
+    padding: 20px;
+    background: #f4f4f4;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+}
+
+.tabs {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    background: #333;
+    color: white;
+    border-radius: 5px;
+}
+
+.tabs button:hover {
+    background: #555;
+}
+
+.contenido {
+    margin-top: 20px;
+    padding-bottom: 100px;
+}
+
+.oculto {
+    display: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+input, select {
+    padding: 8px;
+    margin: 5px;
+}
+
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.btn-rojo {
+    background: #c0392b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.btn-rojo:hover {
+    background: #e74c3c;
+}
+
+/* TOTAL CAJA ABAJO DERECHA */
+.caja-total {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2c3e50;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-size: 18px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.btn-amarillo {
+    background: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.btn-amarillo:hover {
+    background: #e67e22;
+}
+
+.btn-verde {
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.btn-verde:hover {
+    background: #2ecc71;
+}

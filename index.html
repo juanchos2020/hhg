@@ -2,203 +2,107 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargadores</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-        h1 { text-align: center; color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background: #e0e0e0; }
-        input[type="number"], input[type="text"] { width: 100%; padding: 5px; box-sizing: border-box; }
-        .btn-del { padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-add { padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .total { font-weight: bold; text-align: right; font-size: 1.2em; margin-top: 20px; }
-        .seccion { margin-top: 40px; }
-        img { max-width: 300px; height: auto; margin: 10px; border: 1px solid #ddd; border-radius: 8px; }
-        .estado-agotado { background: #ffcccc; font-weight: bold; color: #721c24; }
-        .estado-bajo { background: #fff3cd; font-weight: bold; color: #856404; }
-        .estado-ok { background: #d4edda; color: #155724; }
-        #nuevo-nombre { width: 60%; padding: 8px; }
-        #nuevo-unidades { width: 100px; padding: 8px; }
-    </style>
+    <title>Sistema de Facturación</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Cargadores</h1>
 
-    <table id="tabla-stock">
+<h1>Sistema de Facturación e Inventario</h1>
+
+<div class="tabs">
+    <button onclick="mostrarPestana('inventario')">Inventario</button>
+    <button onclick="mostrarPestana('productos')">Productos</button>
+    <button onclick="mostrarPestana('caja')">Caja</button>
+    <button onclick="mostrarPestana('ventasDia')">Ventas del Día</button>
+</div>
+
+<!-- INVENTARIO -->
+<div id="inventario" class="contenido">
+    <h2>Inventario</h2>
+
+    <input type="number" id="buscarIdInventario" placeholder="Buscar por ID">
+    <button onclick="buscarProductoInventario()">Buscar</button>
+    <button onclick="actualizarInventario()">Mostrar Todos</button>
+
+    <button onclick="borrarInventario()" class="btn-rojo">
+        Borrar Todo el Inventario
+    </button>
+
+    <table id="tablaInventario">
         <thead>
             <tr>
-                <th>Nombre del Cargador</th>
-                <th>Unidades</th>
-                <th>Estado</th>
-                <th>Eliminar</th>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Las filas se generan con JavaScript -->
-        </tbody>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- PRODUCTOS -->
+<div id="productos" class="contenido oculto">
+    <h2>Agregar Producto</h2>
+
+    <input type="number" id="idProducto" placeholder="ID del Producto">
+    <input type="text" id="nombre" placeholder="Nombre">
+    <input type="number" id="precio" placeholder="Precio">
+    <input type="number" id="stock" placeholder="Stock Inicial">
+
+    <button onclick="agregarProducto()">Agregar</button>
+</div>
+
+<!-- CAJA -->
+<div id="caja" class="contenido oculto">
+    <h2>Facturación</h2>
+
+    <input type="number" id="buscarIdCaja" placeholder="Buscar ID">
+    <button onclick="buscarProductoCaja()">Cargar</button>
+
+    <select id="productoSelect"></select>
+    <input type="number" id="cantidad" placeholder="Cantidad">
+    <button onclick="agregarAlCarrito()">Agregar a la lista</button>
+
+    <h3>Lista de Venta</h3>
+    <table id="tablaCarrito">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
     </table>
 
-    <div class="total">Total cargadores en stock: <span id="total-unidades">0</span></div>
+    <h3>Total Compra: $<span id="totalCompra">0</span></h3>
+    <button onclick="confirmarVenta()">Confirmar Venta</button>
+</div>
 
-    <div class="seccion">
-        <h2>Agregar</h2>
-        <input type="text" id="nuevo-nombre" placeholder="Ej: Nuevo Cargador 65W Tipo C">
-        <input type="number" id="nuevo-unidades" min="0" value="0">
-        <button class="btn-add" onclick="agregarNuevo()">Agregar</button>
+<!-- VENTAS -->
+<div id="ventasDia" class="contenido oculto">
+    <h2>Ventas del Día</h2>
 
-    <script>
-        // Lista inicial de cargadores
-        let cargadoresIniciales = [
-            "Lenovo ideapad 20V - 3.25A",
-            "Lenovo ideapad 20V - 2.25A",
-            "Lenovo 20V - 3.25A",
-            "Lenovo punta cuadrada 20V - 2.25A",
-            "Lenovo punta cuadrada 20V - 3.25A",
-            "Lenovo punta cuadrada 20V - 4A",
-            "Asus 19V - 3.42A",
-            "Asus X 19V - 3.42A",
-            "Asus X 19V - 2.37A",
-            "Asus X 19V - 1.75A",
-            "HP punta azul 19.5V - 3.33A",
-            "HP punta azul 19.5V - 2.31A",
-            "HP punta azul 19.5V - 4.6A",
-            "HP tipo C",
-            "HP punta aguja 18.5V - 3.5A",
-            "HP punta aguja 19V - 4.7A",
-            "HP todo en uno 19.5V - 3.33A",
-            "HP punta larga 19.5V - 3.33A",
-            "HP gamer 19.5V - 7.7A",
-            "Asus gamer 19V - 7.7A",
-            "Asus usb 19V - 1.75A",
-            "HP mini larga 19.5V - 3.3A",
-            "HP mini 19V - 1.58A",
-            "HP mini 19.5V - 2.05A",
-            "Lenovo normal 19V - 3.42A",
-            "Monitor Samsung 19V - 2.1A",
-            "Monitor Samsung 14V - 2.41A",
-            "Lenovo hexagonal 19.5V - 3.34A",
-            "Monitor LG 19V - 2.1A",
-            "Monitor LG 19V - 1.3A",
-            "Monitor LG 19V - 0.84A",
-            "Acer punta aguja 19V - 3.42A",
-            "Acer punta aguja 19V - 2.37A",
-            "Acer 19V - 2.37A",
-            "Acer 19V - 3.42A",
-            "Dell nuevo 19.5V - 3.34A",
-            "Dell aguja 19.5V - 3.34A",
-            "Samsung 19V - 3.16A",
-            "Lenovo punta amarilla 20V - 3.25A",
-            "Lenovo punta aguja 20V - 3.25A",
-            "HP punta amarilla 18.5V - 3.5A",
-            "HP mini 19.5V - 3.33A",
-            "HP mini 19V - 1.58A",
-            "Toshiba 19V - 3.42A",
-            "Mini Samsung 19V - 2.1A"
-        ];
+    <table id="tablaVentas">
+        <thead>
+            <tr>
+                <th>Imprimir</th>
+                <th>Fecha</th>
+                <th>Productos</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
-        const tbody = document.querySelector("#tabla-stock tbody");
-        const totalSpan = document.getElementById("total-unidades");
+<div class="caja-total">
+    Total Caja: $<span id="totalCaja">0</span><br>
+    <button onclick="cerrarDia()" class="btn-amarillo">Cerrar Día</button>
+</div>
 
-        // Cargar datos guardados
-        let listaCargadores = JSON.parse(localStorage.getItem("listaCargadores")) || cargadoresIniciales;
-        let stock = JSON.parse(localStorage.getItem("stockCargadores")) || {};
-
-        // Renderizar tabla
-        function renderTabla() {
-            tbody.innerHTML = "";
-            listaCargadores.forEach((nombre, index) => {
-                const tr = document.createElement("tr");
-
-                // Nombre
-                const tdNombre = document.createElement("td");
-                tdNombre.textContent = nombre;
-                tr.appendChild(tdNombre);
-
-                // Unidades
-                const unidades = stock[index] || 0;
-                const tdUnidades = document.createElement("td");
-                const input = document.createElement("input");
-                input.type = "number";
-                input.min = "0";
-                input.value = unidades;
-                input.addEventListener("change", () => actualizarStock(index, input.value));
-                tdUnidades.appendChild(input);
-                tr.appendChild(tdUnidades);
-
-                // Estado
-                const tdEstado = document.createElement("td");
-                if (unidades === 0) {
-                    tdEstado.textContent = "Agotado";
-                    tdEstado.className = "estado-agotado";
-                } else if (unidades <= 3) {
-                    tdEstado.textContent = "Bajo stock";
-                    tdEstado.className = "estado-bajo";
-                } else {
-                    tdEstado.textContent = "OK";
-                    tdEstado.className = "estado-ok";
-                }
-                tr.appendChild(tdEstado);
-
-                // Eliminar
-                const tdEliminar = document.createElement("td");
-                const btnDel = document.createElement("button");
-                btnDel.textContent = "Eliminar";
-                btnDel.className = "btn-del";
-                btnDel.onclick = () => eliminarCargador(index);
-                tdEliminar.appendChild(btnDel);
-                tr.appendChild(tdEliminar);
-
-                tbody.appendChild(tr);
-            });
-            calcularTotal();
-        }
-
-        function actualizarStock(index, valor) {
-            stock[index] = parseInt(valor) || 0;
-            localStorage.setItem("stockCargadores", JSON.stringify(stock));
-            renderTabla(); // Actualiza el estado de color
-        }
-
-        function calcularTotal() {
-            const total = Object.values(stock).reduce((a, b) => a + b, 0);
-            totalSpan.textContent = total;
-        }
-
-        function agregarNuevo() {
-            const nombre = document.getElementById("nuevo-nombre").value.trim();
-            const unidades = parseInt(document.getElementById("nuevo-unidades").value) || 0;
-            if (nombre === "") {
-                alert("Por favor ingresa un nombre para el cargador");
-                return;
-            }
-            listaCargadores.push(nombre);
-            stock[listaCargadores.length - 1] = unidades;
-            localStorage.setItem("listaCargadores", JSON.stringify(listaCargadores));
-            localStorage.setItem("stockCargadores", JSON.stringify(stock));
-            document.getElementById("nuevo-nombre").value = "";
-            document.getElementById("nuevo-unidades").value = "0";
-            renderTabla();
-        }
-
-        function eliminarCargador(index) {
-            if (confirm("¿Seguro que quieres eliminar este cargador?")) {
-                listaCargadores.splice(index, 1);
-                // Reindexar stock
-                let nuevoStock = {};
-                listaCargadores.forEach((_, i) => {
-                    if (stock[i] !== undefined) nuevoStock[i] = stock[i];
-                });
-                stock = nuevoStock;
-                localStorage.setItem("listaCargadores", JSON.stringify(listaCargadores));
-                localStorage.setItem("stockCargadores", JSON.stringify(stock));
-                renderTabla();
-            }
-        }
-
-        // Cargar al iniciar
-        renderTabla();
-    </script>
+<script src="script.js"></script>
 </body>
 </html>
